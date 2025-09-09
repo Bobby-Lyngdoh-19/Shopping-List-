@@ -3,6 +3,8 @@ const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
 const clearbtn = document.getElementById("clear");
 const filter = document.getElementById("filter");
+const formBtn = itemForm.querySelector("button");
+let isEditMode = false;
 
 // display item
 function displayItems() {
@@ -26,6 +28,21 @@ function SubmitItems(e) {
     alert("please enter the item ");
     return;
   }
+
+  // edit mode
+  if (isEditMode) {
+    const itemEditMode = itemList.querySelector(".edit-mode");
+    removeItemFromStorage(itemEditMode.textContent);
+    itemEditMode.classList.remove("edit-mode");
+    itemEditMode.remove();
+    isEditMode = false;
+  } else {
+    if (checkDuplicates(newItem)) {
+      alert("item already exists");
+      return;
+    }
+  }
+
   //add items
   addItemtoDOM(newItem);
   //add item to local storage
@@ -91,7 +108,25 @@ function createIcon(classes) {
 function onClickItem(e) {
   if (e.target.parentElement.classList.contains("remove-item")) {
     removeItem(e.target.parentElement.parentElement);
+  } else {
+    setItemOnEdit(e.target);
   }
+}
+// function chek duplicate items
+function checkDuplicates(item) {
+  const itemsFromStorage = getItemsFromStorage();
+  return itemsFromStorage.includes(item);
+}
+//function to edit
+function setItemOnEdit(item) {
+  itemList
+    .querySelectorAll("li")
+    .forEach((i) => i.classList.remove("edit-mode"));
+  isEditMode = true;
+  item.classList.add("edit-mode");
+  formBtn.innerHTML = '<i class = "fa-solid fa-pen" ></i> Update item';
+  formBtn.style.backgroundColor = "#22B882";
+  itemInput.value = item.textContent;
 }
 
 //remove item function
@@ -151,6 +186,7 @@ function filterItems(e) {
 
 // clear ui
 function clearUI() {
+  itemInput.value = "";
   const listItems = itemList.querySelectorAll("li");
 
   if (listItems.length === 0) {
@@ -160,6 +196,10 @@ function clearUI() {
     filter.style.display = "block";
     clearbtn.style.display = "block";
   }
+
+  formBtn.innerHTML = '<i class = "fa-solid fa-plus" ></i> Add item';
+  formBtn.style.backgroundColor = "#333";
+  isEditMode = false;
 }
 //initialize app
 
